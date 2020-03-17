@@ -69,7 +69,10 @@ class Graph:
                 for next_vertex in self.vertices[v]:
                     s.push(next_vertex)
 
-    def dft_recursive(self, starting_vertex, visited = set()):
+    def dft_recursive(self, starting_vertex, visited=None):
+        # Tom's solution had visited=None as a parameter
+        # then:
+        
         """
         Print each vertex in depth-first order
         beginning from starting_vertex.
@@ -77,7 +80,10 @@ class Graph:
         This should be done using recursion.
         """
         # Create the visited set - need to do this outside the recursive function
-        # visited = set()
+        if visited is None:
+            visited = set()
+            # (Above code is for quirk of Python as explained in lecture)
+        
         # Print the starting_vertex
         print(starting_vertex)
         # Add the starting_vertex to the visited set
@@ -111,6 +117,19 @@ class Graph:
                     return path
                 # Mark it as visited...
                 visited.add(last_vertex)
+                # Then add a path to its neighbours to the back of the queue
+
+                # This is the part I don't quite understand - below:
+
+                for next_vert in self.vertices[last_vertex]:
+                    # Copy the contents of the current path into a new path and append the next vertex
+                    next_path = list(path)
+                    next_path.append(next_vert)
+                    # Append the neigbour to the back of the queue
+                    q.enqueue(next_path)
+        # return None
+        return None            
+
               
         """
         Return a list containing the shortest path from
@@ -125,7 +144,35 @@ class Graph:
         starting_vertex to destination_vertex in
         depth-first order.
         """
-        pass  # TODO
+        # Create an empty stack and push a PATH to the starting vertex ID
+        s = Stack()
+        s.push([starting_vertex])
+        # Create a set to store visited vertices
+        visited = set()
+        # While the stack is not empty
+        while s.size() > 0:
+            # pop the first PATH eg: [a, b, c, r, g]
+            path = s.pop()
+            # Grab the last vertex from the PATH
+            last_vertex = path[-1]
+            # check if the last vertex has been visited before
+            if last_vertex not in visited:
+                # Check if it's the target
+                if last_vertex == destination_vertex:
+                    # if so, return path
+                    return path
+                # Mark it as visited...
+                visited.add(last_vertex)
+                # Then add a path to its neighbours to the back of the queue
+                # This is the part I don't quite understand
+
+                for v in self.vertices[last_vertex]:
+                    # Copy the contents of the current path into a new path and append the next vertex
+                    next_path = list(path)
+                    next_path.append(v)
+                    # Append the neigbour to the back of the queue
+                    s.push(next_path)
+        return None            
 
     def dfs_recursive(self, starting_vertex):
         """
@@ -202,5 +249,5 @@ if __name__ == '__main__':
         [1, 2, 4, 6]
         [1, 2, 4, 7, 6]
     '''
-    # print(graph.dfs(1, 6))
+    print(graph.dfs(1, 6))
     # print(graph.dfs_recursive(1, 6))
