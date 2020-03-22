@@ -1,3 +1,18 @@
+import random
+
+class Queue():
+    def __init__(self):
+        self.queue = []
+    def enqueue(self, value):
+        self.queue.append(value)
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+    def size(self):
+        return len(self.queue)
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -45,8 +60,30 @@ class SocialGraph:
         # !!!! IMPLEMENT ME
 
         # Add users
+        # Loop in range from 0 to the number of users
+        for i in range(num_users):
+            # add a new user each time
+            self.add_user(f"User {i}")
 
         # Create friendships
+        # Create a list to hold all the possible friendships
+        possible_friendships = []
+        # Iterate over the users
+        for user_id in self.users:
+            # Iterate over the users again in the range from user_id + 1 to last_id +1
+            for friend_id in range(user_id +1, self.last_id + 1):
+                # add a tuple to the possible friendships list containing the user_id and the friend_id that they have a connection with, giving all the possible friendships
+                possible_friendships.append((user_id, friend_id))
+        # shuffle the combos to randomise them
+        random.shuffle(possible_friendships)
+
+        # Create n friendships where n = avg_friendships * num_users //2
+        # avg_friendships = total_friendships / num_users
+        # total_friendships = avg_friendships * num_users
+        for i in range(num_users * avg_friendships // 2):
+            friendship = possible_friendships[i]
+            self.add_friendship(friendship[0], friendship[1])        
+
 
     def get_all_social_paths(self, user_id):
         """
@@ -59,7 +96,33 @@ class SocialGraph:
         """
         visited = {}  # Note that this is a dictionary, not a set
         # !!!! IMPLEMENT ME
-        return visited
+        # BFS - return every user and the shortest path
+        # Instantiate a queue
+        q = Queue()
+        # add path list with the user_id to the queue
+        q.enqueue([user_id])
+        # while the queue is not empty
+        while q.size() > 0:
+            # dequeue the path at the top of the queue
+            path = q.dequeue()
+            # set the next user id to the last element in the path list at the top of the queue
+            next_user_id = path[-1]
+            # if the next user has not been visited
+            if next_user_id not in visited:
+                # add it to visited set with user_id and path as the key value pair
+                visited[next_user_id] = path
+                # if friends of the next_user have not been visited
+                for friend in self.friendships[next_user_id]:
+                    # if friend not in visited:
+                        # copy the contents of the current path to a new list
+                        new_path = list(path)
+                        # append the friend
+                        new_path.append(friend)
+                        # add it to the queue
+                        q.enqueue(new_path)
+        return visited                
+
+
 
 
 if __name__ == '__main__':
